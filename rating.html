@@ -67,8 +67,6 @@
         let output = document.querySelector('output');
         let form = document.getElementById('formRating');
 
-        console.log(formRating);
-
         if(form.max > 10) form.max = 10;
         if(form.max < 3) form.max = 3;
 
@@ -84,7 +82,6 @@
         stars.forEach((star, idx) => {
             let rating = idx + 1;
             star.addEventListener("click", (e) => {
-                console.log(rating);
                 stars.forEach((star, idx) => {
                     star.style.visibility = "hidden";
                 })
@@ -103,7 +100,6 @@
                 let xhr = new XMLHttpRequest();
                 xhr.open('POST', 'https://httpbin.org/post', true);
                 xhr.setRequestHeader('X-Sent-By', 'JS');
-                console.log(xhr);
                 xhr.onload = function() {
                     if(xhr.status == 200) {
                         console.log(xhr.responseText);
@@ -119,19 +115,6 @@
                 xhr.send(formData);
             });
         })
-
-        // function clicked(rating) {
-        //     console.log(rating);
-        //     stars.forEach((star, idx) => {
-        //         star.style.visibility = "hidden";
-        //     })
-        //     if (rating >= (stars.length*0.8)) {
-        //         output.textContent = "Thanks for the " + rating + " star rating!"
-        //     }
-        //     else {
-        //         output.textContent = "Thank you for your feedback of " + rating + " stars. We'll try to do better!"
-        //     }
-        // }
     </script>
 </body>
 </html>
