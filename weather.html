@@ -69,7 +69,6 @@
                 this.shadowRoot.innerHTML = `<p id='forecast'></p>`;
                 this.shadowRoot.innerHTML += `<img id='image'>`;
 
-                console.log('hi');
                 this.fetchWeather();
                 this.interval = setInterval(() => this.fetchWeather(), 30000);
             }
@@ -82,7 +81,6 @@
                     fetch('https://api.weather.gov/gridpoints/SGX/53,20/forecast/hourly')
                         .then(response => response.json())
                         .then(data => {
-                            console.log(data);
                             let current = data.properties.periods[0];
                             let greeting = current.isDaytime ? '☼' : '☽';
                             greeting = 'It is ' + hour + ' o\'clock ' + greeting;
@@ -102,7 +100,6 @@
                             }
 
                             let chance = current.probabilityOfPrecipitation.value;
-                            console.log(chance);
                             let precipitation = 'There is a ' + chance + '% chance of precipitation.'
                             if(chance > 50) {
                                 precipitation = precipitation + ' Be careful.';
@@ -114,7 +111,6 @@
 
                             let forecast = greeting + '<br/>' + temp + '<br/>' + report + '<br/>' + precipitation + '<br/>' + wind + '<br/>' + humidity;
 
-                            console.log(forecast);
                             document.documentElement.style.setProperty('--bg-color', isSunny ? org : blu);
                             this.displayWeather(forecast, chance);
                         })
@@ -141,7 +137,6 @@
                     imgElement.src = 'sun.gif'
                 }
                 imgElement.style.height = '100px';
-                console.log(forecast);
             }
 
             disconnectedCallback() {
