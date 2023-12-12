@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Weather Web Component</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #999999;
+        }
+
+        body {
+            background-color: var(--bg-color, #999999);
+            font-family: 'Baloo Bhaijaan 2', sans-serif;
+            font-size: 1.5em;
+            transition: background-color 0.5s;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        weather-report {
+            left: 10%;
+            width: 400px;
+            height: 450px;
+            padding: 10px;
+            background-color: white;
+            display: block;
+            transition: opacity 0.5s;
+            border-radius: 20px;
+            margin: auto;
+            text-align: center;
+        }
+
+        #forecast {
+            text-align: center;
+            transition: opacity 1s ease-in-out;
+            opacity: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        img {
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Current Weather</h1>
+    <weather-report>
+        <noscript>Current Weather Conditions Unavailable.</noscript>
+    </weather-report>
+    
+    <script>
+        let body = document.querySelector('body');
+        const date = new Date();
+        const hour = date.getHours();
+        let org = '#FFBF00';
+        let blu = '#B6D0E2';
+
+        class WeatherNewsReport extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `<p id='forecast'></p>`;
+                this.shadowRoot.innerHTML += `<img id='image'>`;
+
+                console.log('hi');
+                this.fetchWeather();
+                this.interval = setInterval(() => this.fetchWeather(), 30000);
+            }
+
+            fetchWeather() {
+                const forecastElement = this.shadowRoot.getElementById('forecast');
+                forecastElement.style.opacity = 1;
+
+                setTimeout(() => {
+                    fetch('https://api.weather.gov/gridpoints/SGX/53,20/forecast/hourly')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            let current = data.properties.periods[0];
+                            let greeting = current.isDaytime ? '☼' : '☽';
+                            greeting = 'It is ' + hour + ' o\'clock ' + greeting;
+
+                            let temp = 'It is ' + current.temperature + '\u00B0' + current.temperatureUnit + ' in La Jolla, CA';
+
+                            let report = 'The weather is ' + current.shortForecast;
+                            let isSunny = report.toLowerCase().includes('sunny') || report.toLowerCase().includes('clear');
+                            if (isSunny) {
+                                report = report + ' ☀';
+                            }
+                            else if (report.toLowerCase().includes('rain')) {
+                                report = report + ' 🌧';
+                            }
+                            else {
+                                report = report + ' ☁';
+                            }
+
+                            let chance = current.probabilityOfPrecipitation.value;
+                            console.log(chance);
+                            let precipitation = 'There is a ' + chance + '% chance of precipitation.'
+                            if(chance > 50) {
+                                precipitation = precipitation + ' Be careful.';
+                            }
+
+                            let wind = 'Wind Speeds: ' + current.windSpeed + ' ' + current.windDirection;
+
+                            let humidity = 'The humidity is ' + current.relativeHumidity.value + '%';
+
+                            let forecast = greeting + '<br/>' + temp + '<br/>' + report + '<br/>' + precipitation + '<br/>' + wind + '<br/>' + humidity;
+
+                            console.log(forecast);
+                            document.documentElement.style.setProperty('--bg-color', isSunny ? org : blu);
+                            this.displayWeather(forecast, chance);
+                        })
+                        .catch(() => {
+                            this.displayWeather("Unable to fetch weather report");
+                        })
+                }, 1000);
+            }
+
+            displayWeather(forecast, chance) {
+                const forecastElement = this.shadowRoot.getElementById('forecast');
+                const imgElement = this.shadowRoot.getElementById('image')
+
+                forecastElement.innerHTML = forecast;
+                forecastElement.style.opacity = 1;
+
+                if (chance > 50) {
+                    imgElement.src = 'rain.gif';
+                }
+                else if (forecast.toLowerCase().includes('cloudy') || forecast.toLowerCase().includes('fog')) {
+                    imgElement.src = 'cloud.gif';
+                }
+                else {
+                    imgElement.src = 'sun.gif'
+                }
+                imgElement.style.height = '100px';
+                console.log(forecast);
+            }
+
+            disconnectedCallback() {
+                clearInterval(this.interval);
+            }
+        }
+        
+        customElements.define('weather-report', WeatherNewsReport);        
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Rating Widget</title>
+
+    <style>
+        form {
+            visibility: hidden;
+        }
+
+        :root {
+            --uncolor: #999999;
+            --colored: #000000;
+        }
+
+        rating-widget {
+            margin: 0;
+            display: flex;  
+        }
+
+        rating-widget a {
+            margin: 0px 0px;
+            padding: 0;
+            color: var(--uncolor, #999999);
+            font-size: 50px;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        rating-widget:hover a {
+            color: var(--colored, #000000);
+            cursor: pointer;
+        }
+
+        rating-widget a:hover {
+            transform: scale(1.3);
+        }
+
+        rating-widget a:hover ~ a{
+            color: var(--uncolor, #999999);
+        }
+    </style>
+</head>
+<body>
+    <h1>Rating Widget</h1>
+    <noscript>
+        <style type="text/css">
+            form {visibility: visible;}
+            rating-widget {visibility: hidden;}
+        </style>
+    </noscript>
+
+    <rating-widget>
+        <output></output>
+    </rating-widget>
+
+    <form action="https://httpbin.org/post" method="POST">
+        <label for="formRating">How satisfied are you?</label>
+        <input type="hidden" name="question" value="How satisfied are you?">
+        <input type="hidden" name="sentBy" value="HTML">
+        <input type="number" id="formRating" name="formRating" min="1" max="7" value="0" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        let ratingWidget = document.querySelector('rating-widget');
+        let output = document.querySelector('output');
+        let form = document.getElementById('formRating');
+
+        console.log(formRating);
+
+        if(form.max > 10) form.max = 10;
+        if(form.max < 3) form.max = 3;
+
+        for (let i = 0; i < form.max; i++) {
+            let tag = document.createElement('a');
+            let symbol = document.createTextNode('★');
+            tag.appendChild(symbol);
+            ratingWidget.appendChild(tag);
+        }
+
+        let stars = document.querySelectorAll('a');
+
+        stars.forEach((star, idx) => {
+            let rating = idx + 1;
+            star.addEventListener("click", (e) => {
+                console.log(rating);
+                stars.forEach((star, idx) => {
+                    star.style.visibility = "hidden";
+                })
+                if (rating >= (stars.length*0.8)) {
+                    output.textContent = "Thanks for the " + rating + " star rating!"
+                }
+                else {
+                    output.textContent = "Thank you for your feedback of " + rating + " stars. We'll try to do better!"
+                }
+
+                let formData = new FormData();
+                formData.append('formRating', rating);
+                formData.append('question', 'How satisfied are you?');
+                formData.append('sentBy', 'JS');
+
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://httpbin.org/post', true);
+                xhr.setRequestHeader('X-Sent-By', 'JS');
+                console.log(xhr);
+                xhr.onload = function() {
+                    if(xhr.status == 200) {
+                        console.log(xhr.responseText);
+                    } else {
+                        console.error ('Error:', xhr.statusText);
+                    }
+                };
+
+                xhr.onerror = function () {
+                    console.error('Network error');
+                }
+
+                xhr.send(formData);
+            });
+        })
+
+        // function clicked(rating) {
+        //     console.log(rating);
+        //     stars.forEach((star, idx) => {
+        //         star.style.visibility = "hidden";
+        //     })
+        //     if (rating >= (stars.length*0.8)) {
+        //         output.textContent = "Thanks for the " + rating + " star rating!"
+        //     }
+        //     else {
+        //         output.textContent = "Thank you for your feedback of " + rating + " stars. We'll try to do better!"
+        //     }
+        // }
+    </script>
+</body>
+</html>
